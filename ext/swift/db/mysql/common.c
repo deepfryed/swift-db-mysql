@@ -65,6 +65,6 @@ VALUE db_mysql_bind_sql(VALUE adapter, VALUE sql, VALUE bind) {
     free(buffer);
 
     if (n != (size_t)RARRAY_LEN(bind))
-        rb_raise(eSwiftArgumentError, "expected %d arguments got %d instead", n, RARRAY_LEN(bind));
+        rb_raise(eSwiftArgumentError, "expected %d bind arguments got %d instead", n, RARRAY_LEN(bind));
     return sql;
 }

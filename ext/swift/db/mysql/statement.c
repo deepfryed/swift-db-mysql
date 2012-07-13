@@ -77,6 +77,9 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
     rb_scan_args(argc, argv, "00*", &bind);
 
     if (RARRAY_LEN(bind) > 0) {
+        n = mysql_stmt_param_count(s->statement);
+        if (RARRAY_LEN(bind) != n)
+            rb_raise(eSwiftArgumentError, "expected %d bind arguments got %d instead", n, RARRAY_LEN(bind));
         mysql_bind = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
         bzero(mysql_bind, sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
 
