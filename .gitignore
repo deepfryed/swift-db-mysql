@@ -1,0 +1,10 @@
+ext/swift/db/mysql/*
+!ext/swift/db/mysql/*.rb
+!ext/swift/db/mysql/*.c
+!ext/swift/db/mysql/*.h
+pkg/
+tmp/
+*.gem
+benchmarks/gems/*
+benchmarks/.bundle/*
+orig/*
