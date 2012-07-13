@@ -82,7 +82,7 @@ VALUE db_mysql_adapter_execute(int argc, VALUE *argv, VALUE self) {
     VALUE sql, bind;
     MYSQL_RES *result;
     Adapter *a = db_mysql_adapter_handle_safe(self);
-    MYSQL *c = a->connection;
+    MYSQL *c   = a->connection;
 
     rb_scan_args(argc, argv, "10*", &sql, &bind);
     sql = TO_S(sql);

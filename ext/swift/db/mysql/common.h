@@ -21,6 +21,7 @@ extern VALUE mSwift, mDB;
 extern VALUE cDMA, cDMS, cDMR;
 extern VALUE cSwiftDateTime;
 extern VALUE eSwiftError, eSwiftArgumentError, eSwiftRuntimeError, eSwiftConnectionError;
+extern VALUE cStringIO;
 
 DLL_PRIVATE VALUE rb_uuid_string();
 DLL_PRIVATE VALUE db_mysql_bind_sql(VALUE, VALUE, VALUE);

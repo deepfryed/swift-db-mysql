@@ -197,13 +197,15 @@ VALUE db_mysql_binary_typecast(Result *r, int i) {
         case MYSQL_TYPE_DECIMAL:
         case MYSQL_TYPE_STRING:
         case MYSQL_TYPE_VAR_STRING:
+        case MYSQL_TYPE_NEWDECIMAL:
+        case MYSQL_TYPE_BIT:
+            v = rb_str_new(r->bind[i].buffer, r->lengths[i]);
+            break;
         case MYSQL_TYPE_TINY_BLOB:
         case MYSQL_TYPE_BLOB:
         case MYSQL_TYPE_MEDIUM_BLOB:
         case MYSQL_TYPE_LONG_BLOB:
-        case MYSQL_TYPE_NEWDECIMAL:
-        case MYSQL_TYPE_BIT:
-            v = rb_str_new(r->bind[i].buffer, r->lengths[i]);
+            v = rb_funcall(cStringIO, rb_intern("new"), 1, rb_str_new(r->bind[i].buffer, r->lengths[i]));
             break;
         default:
             rb_raise(rb_eTypeError, "unknown buffer_type: %d", r->bind[i].buffer_type);
