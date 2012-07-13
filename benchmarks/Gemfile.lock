@@ -1,0 +1,10 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    mysql2 (0.3.11)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  mysql2
