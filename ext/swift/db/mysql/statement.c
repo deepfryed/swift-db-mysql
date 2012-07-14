@@ -107,6 +107,8 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         free(mysql_bind);
     }
     else {
+        if ((n = mysql_stmt_param_count(s->statement)) > 0)
+            rb_raise(eSwiftArgumentError, "expected %d bind arguments got 0 instead", n);
         error = mysql_stmt_execute(s->statement);
     }
 
