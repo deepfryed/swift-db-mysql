@@ -148,16 +148,17 @@ VALUE db_mysql_result_load(VALUE self, MYSQL_RES *result, size_t insert_id, size
 }
 
 VALUE db_mysql_binary_typecast(Result *r, int i) {
-    double msec;
+    int iv;
     VALUE v;
     MYSQL_TIME *t;
 
     switch (r->bind[i].buffer_type) {
         case MYSQL_TYPE_TINY:
             if (r->bind[i].is_unsigned)
-                v = UINT2NUM(*(unsigned char *)r->bind[i].buffer);
+                iv = *(unsigned char *)r->bind[i].buffer;
             else
-                v = INT2NUM(*(signed char *)r->bind[i].buffer);
+                iv = *(signed char *)r->bind[i].buffer;
+            v = NUM2INT(rb_ary_entry(r->types, i)) == SWIFT_TYPE_BOOLEAN ? iv ? Qtrue : Qfalse : INT2NUM(iv);
             break;
         case MYSQL_TYPE_SHORT:
         case MYSQL_TYPE_YEAR:
