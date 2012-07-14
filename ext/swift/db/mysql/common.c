@@ -30,9 +30,9 @@ size_t db_mysql_buffer_adjust(char **buffer, size_t size, size_t offset, size_t 
 /* NOTE: very naive, no regex etc. */
 VALUE db_mysql_bind_sql(VALUE adapter, VALUE sql, VALUE bind) {
     VALUE value;
+    size_t size = 4096;
+    char *ptr, *buffer;
     size_t i = 0, j = 0, n = 0;
-    size_t size = 4096, slen;
-    char *ptr, *buffer, *data;
 
     buffer = (char *)malloc(size);
     ptr    = RSTRING_PTR(sql);
