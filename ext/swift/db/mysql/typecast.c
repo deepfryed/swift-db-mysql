@@ -38,22 +38,24 @@ VALUE typecast_detect(const char *data, size_t size, int type) {
     }
 }
 
+#define TO_UTF8(value) rb_str_encode(value, rb_str_new2("UTF-8"), 0, Qnil)
+#define UTF8_STRING(value) strcmp(rb_enc_get(value)->name, "UTF-8") ? TO_UTF8(value) : value
+
 VALUE typecast_to_string(VALUE value) {
     switch (TYPE(value)) {
         case T_STRING:
-            return value;
+            return UTF8_STRING(value);
         case T_TRUE:
             return rb_str_new2("1");
         case T_FALSE:
             return rb_str_new2("0");
         default:
-            if (rb_obj_is_kind_of(value, rb_cTime) || rb_obj_is_kind_of(value, cDateTime)) {
+            if (rb_obj_is_kind_of(value, rb_cTime) || rb_obj_is_kind_of(value, cDateTime))
                 return rb_funcall(value, fstrftime, 1, dtformat);
-            }
-            else if (rb_obj_is_kind_of(value, rb_cIO) || rb_obj_is_kind_of(value, cStringIO)) {
+            else if (rb_obj_is_kind_of(value, rb_cIO) || rb_obj_is_kind_of(value, cStringIO))
                 return rb_funcall(value, rb_intern("read"), 0);
-            }
-            return rb_funcall(value, rb_intern("to_s"), 0);
+            else
+                return UTF8_STRING(rb_funcall(value, rb_intern("to_s"), 0));
     }
 }
 
@@ -81,7 +83,6 @@ VALUE typecast_description(VALUE list) {
                 rb_ary_push(types, rb_str_new2("boolean")); break;
             default:
                 rb_ary_push(types, rb_str_new2("text"));
-
         }
     }
     return types;

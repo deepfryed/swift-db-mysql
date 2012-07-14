@@ -199,7 +199,7 @@ VALUE db_mysql_binary_typecast(Result *r, int i) {
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_NEWDECIMAL:
         case MYSQL_TYPE_BIT:
-            v = rb_str_new(r->bind[i].buffer, r->lengths[i]);
+            v = rb_enc_str_new(r->bind[i].buffer, r->lengths[i], rb_utf8_encoding());
             break;
         case MYSQL_TYPE_TINY_BLOB:
         case MYSQL_TYPE_BLOB:
@@ -370,6 +370,8 @@ VALUE db_mysql_result_from_statement(VALUE self, VALUE statement) {
                     r->bind[n].buffer        = malloc(fields[n].length);
                     r->bind[n].buffer_length = fields[n].length;
                     bzero(r->bind[n].buffer, fields[n].length);
+                    if (!(fields[n].flags & BINARY_FLAG))
+                         r->bind[n].buffer_type = MYSQL_TYPE_STRING;
                     break;
                 case MYSQL_TYPE_TIME:
                 case MYSQL_TYPE_DATE:
