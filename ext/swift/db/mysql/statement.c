@@ -83,7 +83,6 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         mysql_bind = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
         bzero(mysql_bind, sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
 
-        rb_gc_disable();
         for (n = 0; n < RARRAY_LEN(bind); n++) {
             data = rb_ary_entry(bind, n);
             if (NIL_P(data)) {
@@ -101,12 +100,10 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
 
         if (mysql_stmt_bind_param(s->statement, mysql_bind) != 0) {
             free(mysql_bind);
-            rb_gc_enable();
             rb_raise(eSwiftRuntimeError, mysql_stmt_error(s->statement));
         }
 
         error = mysql_stmt_execute(s->statement);
-        rb_gc_enable();
         free(mysql_bind);
     }
     else {
