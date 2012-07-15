@@ -80,6 +80,7 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
 
     rb_scan_args(argc, argv, "00*", &bind);
 
+    mysql_stmt_free_result(s->statement);
     if (RARRAY_LEN(bind) > 0) {
         n = mysql_stmt_param_count(s->statement);
         if (RARRAY_LEN(bind) != n)
@@ -126,6 +127,7 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
 VALUE db_mysql_statement_release(VALUE self) {
     Statement *s = db_mysql_statement_handle(self);
     if (s->statement) {
+        mysql_stmt_free_result(s->statement);
         mysql_stmt_close(s->statement);
         s->statement = 0;
         return Qtrue;
