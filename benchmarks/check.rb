@@ -25,13 +25,9 @@ rows = 1000
 iter = 100
 
 class Mysql2::Client
+  # naive interpolation
   def execute sql, *args
-    sql = sql.dup
-    # simple search & replace interpolation.
-    loop do
-      break unless sql.sub!(/\?/) { (v = args.shift) ? "'%s'" % escape(v.to_s) : 'NULL' }
-    end
-    query(sql)
+    query sql.chars.inject('') {|a, c| a << (c == '?' ? (v = args.shift).nil? ? 'NULL' : "'%s'" % escape(v.to_s) : c)}
   end
 end
 
