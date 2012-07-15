@@ -66,6 +66,10 @@ VALUE db_mysql_statement_initialize(VALUE self, VALUE adapter, VALUE sql) {
     return self;
 }
 
+VALUE nogvl_mysql_statement_execute(void *ptr) {
+    return (VALUE)mysql_stmt_execute((MYSQL_STMT *)ptr);
+}
+
 VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
     int n, error;
     VALUE bind, data, result;
@@ -103,13 +107,13 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
             rb_raise(eSwiftRuntimeError, mysql_stmt_error(s->statement));
         }
 
-        error = mysql_stmt_execute(s->statement);
+        error = (int)rb_thread_blocking_region(nogvl_mysql_statement_execute, s->statement, RUBY_UBF_IO, 0);
         free(mysql_bind);
     }
     else {
         if ((n = mysql_stmt_param_count(s->statement)) > 0)
             rb_raise(eSwiftArgumentError, "expected %d bind arguments got 0 instead", n);
-        error = mysql_stmt_execute(s->statement);
+        error = (int)rb_thread_blocking_region(nogvl_mysql_statement_execute, s->statement, RUBY_UBF_IO, 0);
     }
 
     if (error)

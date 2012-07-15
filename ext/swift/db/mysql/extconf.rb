@@ -2,6 +2,8 @@
 
 require 'mkmf'
 
+$CFLAGS = '-std=c99'
+
 inc_paths = %w(
   /usr/include
   /usr/include/mysql

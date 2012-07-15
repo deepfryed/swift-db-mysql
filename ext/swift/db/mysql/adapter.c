@@ -78,6 +78,16 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     return self;
 }
 
+typedef struct Query {
+    MYSQL *connection;
+    VALUE sql;
+} Query;
+
+VALUE nogvl_mysql_adapter_execute(void *ptr) {
+    Query *q = (Query *)ptr;
+    return (VALUE)mysql_real_query(q->connection, RSTRING_PTR(q->sql), RSTRING_LEN(q->sql));
+}
+
 VALUE db_mysql_adapter_execute(int argc, VALUE *argv, VALUE self) {
     VALUE sql, bind;
     MYSQL_RES *result;
@@ -90,7 +100,9 @@ VALUE db_mysql_adapter_execute(int argc, VALUE *argv, VALUE self) {
     if (RARRAY_LEN(bind) > 0)
         sql = db_mysql_bind_sql(self, sql, bind);
 
-    if (mysql_real_query(c, RSTRING_PTR(sql), RSTRING_LEN(sql)) != 0)
+    Query q = {.connection = c, .sql = sql};
+
+    if ((int)rb_thread_blocking_region(nogvl_mysql_adapter_execute, &q, RUBY_UBF_IO, 0) != 0)
         rb_raise(eSwiftRuntimeError, "%s", mysql_error(c));
 
     result = mysql_store_result(c);
