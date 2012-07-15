@@ -53,15 +53,15 @@ describe 'mysql adapter' do
 
   it 'should prepare & release statement' do
     assert db.execute('drop table if exists users')
-    assert db.execute("create table users(id int auto_increment primary key, name text)")
-    assert db.execute("insert into users (name) values (?)", "test")
-    assert s = db.prepare("select * from users where id > ?")
+    assert db.execute("create table users(id int auto_increment primary key, name text, created_at datetime)")
+    assert db.execute("insert into users (name, created_at) values (?, ?)", "test", Time.now)
+    assert s = db.prepare("select * from users where id > ? and created_at <= ?")
 
-    assert_equal 1, s.execute(0).selected_rows
-    assert_equal 0, s.execute(1).selected_rows
+    assert_equal 0, s.execute(1, Time.now).selected_rows
+    assert_equal 1, s.execute(0, Time.now).selected_rows
 
     assert s.release
-    assert_raises(Swift::RuntimeError) { s.execute(1) }
+    assert_raises(Swift::RuntimeError) { s.execute(1, Time.now) }
   end
 
   it 'should escape whatever' do
