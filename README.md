@@ -1,6 +1,13 @@
 # Swift MySQL adapter
 
-MRI adapter for mysql for use in Swift ORM.
+MRI adapter for mysql.
+
+## Features
+
+* Lightweight & fast
+* Result typecasting
+* Prepared statements, yeah finally!
+* Asynchronous support
 
 ## API
 
@@ -53,6 +60,8 @@ db.execute('select * from users').first #=> {:id => 1, :name => 'test', :age => 
 ```
 
 ### Asynchronous
+
+Hint: You can use `Adapter#fileno` and `EventMachine.watch` if you need to use this with EventMachine.
 
 ```ruby
 rows = []
