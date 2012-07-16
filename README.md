@@ -1,6 +1,6 @@
 # Swift MySQL adapter
 
-MRI adapter for mysql.
+MRI adapter for MySQL
 
 ## Features
 
