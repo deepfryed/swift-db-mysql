@@ -43,30 +43,30 @@ MRI adapter for mysql for use in Swift ORM.
 ### Synchronous
 
 ```ruby
-  db = Swift::DB::Mysql.new(db: 'swift_test')
+db = Swift::DB::Mysql.new(db: 'swift_test')
 
-  now = Time.now.utc
-  db.execute('drop table if exists users')
-  db.execute('create table users (id int auto_increment primary key, name text, age integer, created_at datetime)')
-  db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, now)
+now = Time.now.utc
+db.execute('drop table if exists users')
+db.execute('create table users (id int auto_increment primary key, name text, age integer, created_at datetime)')
+db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, now)
 
-  db.execute('select * from users').first #=> {:name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
+db.execute('select * from users').first #=> {:name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
 ```
 
 ### Asynchronous
 
 ```ruby
-  rows = []
-  pool = 3.times.map.with_index {|n| Swift::DB::Mysql.new(db: 'swift_test')}
+rows = []
+pool = 3.times.map.with_index {|n| Swift::DB::Mysql.new(db: 'swift_test')}
 
-  3.times do |n|
-    Thread.new do
-      pool[n].query("select sleep(#{(3 - n) / 10.0}), #{n + 1} as query_id") {|row| rows << row[:query_id]}
-    end
+3.times do |n|
+  Thread.new do
+    pool[n].query("select sleep(#{(3 - n) / 10.0}), #{n + 1} as query_id") {|row| rows << row[:query_id]}
   end
+end
 
-  Thread.list.reject {|thread| Thread.current == thread}.each(&:join)
-  rows #=> [3, 2, 1]
+Thread.list.reject {|thread| Thread.current == thread}.each(&:join)
+rows #=> [3, 2, 1]
 ```
 
 ## License
