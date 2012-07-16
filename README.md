@@ -45,10 +45,9 @@ MRI adapter for mysql for use in Swift ORM.
 ```ruby
 db = Swift::DB::Mysql.new(db: 'swift_test')
 
-now = Time.now.utc
 db.execute('drop table if exists users')
 db.execute('create table users (id int auto_increment primary key, name text, age integer, created_at datetime)')
-db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, now)
+db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, Time.now.utc)
 
 db.execute('select * from users').first #=> {:id => 1, :name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
 ```
