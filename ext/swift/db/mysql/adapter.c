@@ -7,6 +7,7 @@
 
 /* declaration */
 VALUE cDMA, sUser;
+VALUE db_mysql_result_each(VALUE);
 VALUE db_mysql_result_allocate(VALUE);
 VALUE db_mysql_result_load(VALUE, MYSQL_RES *, size_t, size_t);
 VALUE db_mysql_statement_allocate(VALUE);
@@ -254,6 +255,50 @@ VALUE db_mysql_adapter_escape(VALUE self, VALUE fragment) {
     return rb_str_new2(escaped);
 }
 
+VALUE db_mysql_adapter_fileno(VALUE self) {
+    Adapter *a = db_mysql_adapter_handle_safe(self);
+    return INT2NUM(a->connection->net.fd);
+}
+
+VALUE db_mysql_adapter_query(int argc, VALUE *argv, VALUE self) {
+    VALUE sql, bind, result;
+    MYSQL_RES *r;
+    Adapter *a = db_mysql_adapter_handle_safe(self);
+    MYSQL *c   = a->connection;
+
+    rb_scan_args(argc, argv, "10*", &sql, &bind);
+    sql = TO_S(sql);
+
+    if (RARRAY_LEN(bind) > 0)
+        sql = db_mysql_bind_sql(self, sql, bind);
+
+    mysql_send_query(c, RSTRING_PTR(sql), RSTRING_LEN(sql));
+
+    if (rb_block_given_p()) {
+        rb_thread_wait_fd(a->connection->net.fd);
+        if (mysql_read_query_result(c) != 0)
+            rb_raise(eSwiftRuntimeError, "%s", mysql_error(c));
+
+        r      = mysql_store_result(c);
+        result = db_mysql_result_load(db_mysql_result_allocate(cDMR), r, mysql_insert_id(c), mysql_affected_rows(c));
+        return db_mysql_result_each(result);
+    }
+
+    return Qtrue;
+}
+
+VALUE db_mysql_adapter_result(VALUE self) {
+    MYSQL_RES *r;
+    Adapter *a = db_mysql_adapter_handle_safe(self);
+    MYSQL *c   = a->connection;
+
+    if (mysql_read_query_result(c) != 0)
+        rb_raise(eSwiftRuntimeError, "%s", mysql_error(c));
+
+    r = mysql_store_result(c);
+    return db_mysql_result_load(db_mysql_result_allocate(cDMR), r, mysql_insert_id(c), mysql_affected_rows(c));
+}
+
 void init_swift_db_mysql_adapter() {
     rb_require("etc");
     sUser  = rb_funcall(CONST_GET(rb_mKernel, "Etc"), rb_intern("getlogin"), 0);
@@ -271,6 +316,9 @@ void init_swift_db_mysql_adapter() {
     rb_define_method(cDMA, "close",       db_mysql_adapter_close,        0);
     rb_define_method(cDMA, "closed?",     db_mysql_adapter_closed_q,     0);
     rb_define_method(cDMA, "escape",      db_mysql_adapter_escape,       1);
+    rb_define_method(cDMA, "fileno",      db_mysql_adapter_fileno,       0);
+    rb_define_method(cDMA, "query",       db_mysql_adapter_query,       -1);
+    rb_define_method(cDMA, "result",      db_mysql_adapter_result,       0);
 
     rb_global_variable(&sUser);
 }
