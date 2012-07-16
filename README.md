@@ -57,7 +57,7 @@ db.execute('select * from users').first #=> {:name => 'test', :age => 30, :creat
 
 ```ruby
 rows = []
-pool = 3.times.map.with_index {|n| Swift::DB::Mysql.new(db: 'swift_test')}
+pool = 3.times.map {Swift::DB::Mysql.new(db: 'swift_test')}
 
 3.times do |n|
   Thread.new do

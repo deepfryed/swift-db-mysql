@@ -3,7 +3,7 @@ require 'helper'
 describe 'async operations' do
   it 'can query async and call block with result when ready' do
     rows = []
-    pool = 3.times.map.with_index {|n| Swift::DB::Mysql.new(db: 'swift_test')}
+    pool = 3.times.map {Swift::DB::Mysql.new(db: 'swift_test')}
 
     3.times do |n|
       Thread.new do
@@ -18,7 +18,7 @@ describe 'async operations' do
   it 'returns and allows IO poll on connection file descriptor' do
 
     rows = []
-    pool = 3.times.map.with_index {|n| Swift::DB::Mysql.new(db: 'swift_test')}
+    pool = 3.times.map {Swift::DB::Mysql.new(db: 'swift_test')}
 
     3.times do |n|
       Thread.new do
