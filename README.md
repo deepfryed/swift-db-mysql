@@ -23,15 +23,9 @@ MRI adapter for MySQL
     #close
     #closed?
     #escape(text)
-
-    Asynchronous API (see test/test_async.rb)
-
     #query(sql, *bind)
     #fileno
     #result
-
-    Data I/O (see test/test_adapter.rb):
-
     #write(table = nil, fields = nil, io_or_string)
 
   Swift::DB::MySql::Statement
@@ -48,6 +42,22 @@ MRI adapter for MySQL
     #insert_id
 ```
 
+### Asynchronous API
+
+```
+  Swift::DB::Mysql
+    #query(sql, *bind)
+    #fileno
+    #result
+```
+
+### Data I/O API
+
+```
+  Swift::DB::Mysql
+    #write(table = nil, fields = nil, io_or_string)
+```
+
 ## Example
 
 
@@ -62,7 +72,7 @@ db.execute('drop table if exists users')
 db.execute('create table users (id int auto_increment primary key, name text, age integer, created_at datetime)')
 db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, Time.now.utc)
 
-db.execute('select * from users').first #=> {:id => 1, :name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
+p db.execute('select * from users').first #=> {:id => 1, :name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
 ```
 
 ### Asynchronous
@@ -77,15 +87,17 @@ pool = 3.times.map {Swift::DB::Mysql.new(db: 'swift_test')}
 
 3.times do |n|
   Thread.new do
-    pool[n].query("select sleep(#{(3 - n) / 10.0}), #{n + 1} as query_id") {|row| rows << row[:query_id]}
+    pool[n].query("select sleep(#{(3 - n) / 10.0}), #{n + 1} as query_id") do |row|
+      rows << row[:query_id]
+    end
   end
 end
 
 Thread.list.reject {|thread| Thread.current == thread}.each(&:join)
-rows #=> [3, 2, 1]
+p rows #=> [3, 2, 1]
 ```
 
-### Data I/O commands
+### Data I/O
 
 The adapter supports data write via LOAD DATA LOCAL INFILE command.
 
