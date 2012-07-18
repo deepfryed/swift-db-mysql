@@ -67,4 +67,15 @@ describe 'mysql adapter' do
   it 'should escape whatever' do
     assert_equal "foo\\'bar", db.escape("foo'bar")
   end
+
+  it 'should support #write' do
+    assert db.execute('drop table if exists users')
+    assert db.execute("create table users(id int auto_increment primary key, name text)")
+
+    assert_equal 3, db.write('users', %w(name), "foo\nbar\nbaz\n").affected_rows
+    assert_equal 3, db.execute('select count(*) as count from users').first[:count]
+
+    assert_equal 3, db.write('users', StringIO.new("7\tfoo\n8\tbar\n9\tbaz\n")).affected_rows
+    assert_equal 6, db.execute('select count(*) as count from users').first[:count]
+  end
 end

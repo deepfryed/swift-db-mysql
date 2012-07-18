@@ -7,6 +7,7 @@
 #include "common.h"
 
 typedef struct Adapter {
+    VALUE io;
     MYSQL *connection;
     int t_nesting;
 } Adapter;

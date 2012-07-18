@@ -30,6 +30,10 @@ MRI adapter for MySQL
     #fileno
     #result
 
+    Data I/O (see test/test_adapter.rb):
+
+    #write(table = nil, fields = nil, io_or_string)
+
   Swift::DB::MySql::Statement
     .new(Swift::DB::Mysql, sql)
     #execute(*bind)
@@ -50,6 +54,8 @@ MRI adapter for MySQL
 ### Synchronous
 
 ```ruby
+require 'swift/db/mysql'
+
 db = Swift::DB::Mysql.new(db: 'swift_test')
 
 db.execute('drop table if exists users')
@@ -64,6 +70,8 @@ db.execute('select * from users').first #=> {:id => 1, :name => 'test', :age => 
 Hint: You can use `Adapter#fileno` and `EventMachine.watch` if you need to use this with EventMachine.
 
 ```ruby
+require 'swift/db/mysql'
+
 rows = []
 pool = 3.times.map {Swift::DB::Mysql.new(db: 'swift_test')}
 
@@ -75,6 +83,22 @@ end
 
 Thread.list.reject {|thread| Thread.current == thread}.each(&:join)
 rows #=> [3, 2, 1]
+```
+
+### Data I/O commands
+
+The adapter supports data write via LOAD DATA LOCAL INFILE command.
+
+```ruby
+require 'swift/db/mysql'
+
+db = Swift::DB::Mysql.new(db: 'swift_test')
+db.execute('drop table if exists users')
+db.execute('create table users (id int auto_increment primary key, name text)')
+
+db.write('users', %w{name}, "foo\nbar\nbaz\n")
+db.write('users', %w{name}, StringIO.new("foo\nbar\nbaz\n"))
+db.write('users', %w{name}, File.open("users.dat"))
 ```
 
 ## License
