@@ -37,7 +37,8 @@ void db_mysql_statement_mark(Statement *s) {
 }
 
 VALUE db_mysql_statement_deallocate(Statement *s) {
-    if (s && s->statement) {
+    if (s) {
+        if (s->statement)
             mysql_stmt_close(s->statement);
         free(s);
     }
@@ -45,11 +46,11 @@ VALUE db_mysql_statement_deallocate(Statement *s) {
 
 VALUE db_mysql_statement_allocate(VALUE klass) {
     Statement *s = (Statement*)malloc(sizeof(Statement));
+    memset(s, 0, sizeof(Statement));
     return Data_Wrap_Struct(klass, db_mysql_statement_mark, db_mysql_statement_deallocate, s);
 }
 
 VALUE db_mysql_statement_initialize(VALUE self, VALUE adapter, VALUE sql) {
-    int i;
     MYSQL *connection;
     Statement *s = db_mysql_statement_handle(self);
 
@@ -86,7 +87,7 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         if (RARRAY_LEN(bind) != n)
             rb_raise(eSwiftArgumentError, "expected %d bind arguments got %d instead", n, RARRAY_LEN(bind));
         mysql_bind = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
-        bzero(mysql_bind, sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
+        memset(mysql_bind, 0, sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
 
         for (n = 0; n < RARRAY_LEN(bind); n++) {
             data = rb_ary_entry(bind, n);

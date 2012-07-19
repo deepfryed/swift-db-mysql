@@ -74,7 +74,7 @@ VALUE db_mysql_result_deallocate(Result *r) {
 
 VALUE db_mysql_result_allocate(VALUE klass) {
     Result *r = (Result*)malloc(sizeof(Result));
-    r->statement = Qnil;
+    memset(r, 0, sizeof(Result));
     return Data_Wrap_Struct(klass, db_mysql_result_mark, db_mysql_result_deallocate, r);
 }
 
@@ -260,7 +260,7 @@ VALUE db_mysql_result_each(VALUE self) {
     size_t *lengths, row, col;
     Result *r = db_mysql_result_handle(self);
 
-    if (!NIL_P(r->statement))
+    if (r->statement && !NIL_P(r->statement))
         return db_mysql_result_from_statement_each(self);
 
     if (!r->r)
@@ -299,12 +299,12 @@ VALUE db_mysql_result_affected_rows(VALUE self) {
 
 VALUE db_mysql_result_fields(VALUE self) {
     Result *r = db_mysql_result_handle(self);
-    return r->fields;
+    return r->fields ? r->fields : rb_ary_new();
 }
 
 VALUE db_mysql_result_types(VALUE self) {
     Result *r = db_mysql_result_handle(self);
-    return typecast_description(r->types);
+    return r->types ? typecast_description(r->types) : rb_ary_new();
 }
 
 VALUE db_mysql_result_insert_id(VALUE self) {
@@ -335,7 +335,7 @@ VALUE db_mysql_result_from_statement(VALUE self, VALUE statement) {
         r->bind    = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * cols);
         r->lengths = (unsigned long *)malloc(sizeof(unsigned long) * cols);
         r->is_null = (my_bool *)malloc(sizeof(my_bool) * cols);
-        bzero(r->bind, sizeof(MYSQL_BIND) * cols);
+        memset(r->bind, 0, sizeof(MYSQL_BIND) * cols);
 
         for (n = 0; n < cols; n++) {
             r->bind[n].length      = &r->lengths[n];
@@ -357,7 +357,7 @@ VALUE db_mysql_result_from_statement(VALUE self, VALUE statement) {
                 case MYSQL_TYPE_DOUBLE:
                     r->bind[n].buffer        = malloc(8);
                     r->bind[n].buffer_length = 8;
-                    bzero(r->bind[n].buffer, 8);
+                    memset(r->bind[n].buffer, 0, 8);
                     break;
                 case MYSQL_TYPE_DECIMAL:
                 case MYSQL_TYPE_STRING:
@@ -370,7 +370,7 @@ VALUE db_mysql_result_from_statement(VALUE self, VALUE statement) {
                 case MYSQL_TYPE_BIT:
                     r->bind[n].buffer        = malloc(fields[n].length);
                     r->bind[n].buffer_length = fields[n].length;
-                    bzero(r->bind[n].buffer, fields[n].length);
+                    memset(r->bind[n].buffer, 0, fields[n].length);
                     if (!(fields[n].flags & BINARY_FLAG))
                          r->bind[n].buffer_type = MYSQL_TYPE_STRING;
                     break;
@@ -380,7 +380,7 @@ VALUE db_mysql_result_from_statement(VALUE self, VALUE statement) {
                 case MYSQL_TYPE_TIMESTAMP:
                     r->bind[n].buffer        = malloc(sizeof(MYSQL_TIME));
                     r->bind[n].buffer_length = sizeof(MYSQL_TIME);
-                    bzero(r->bind[n].buffer, sizeof(MYSQL_TIME));
+                    memset(r->bind[n].buffer, 0, sizeof(MYSQL_TIME));
                     break;
                 default:
                     rb_raise(rb_eTypeError, "unknown buffer_type: %d", fields[n].type);
