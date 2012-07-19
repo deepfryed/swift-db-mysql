@@ -347,21 +347,24 @@ VALUE db_mysql_adapter_write(int argc, VALUE *argv, VALUE self) {
     Adapter *a = db_mysql_adapter_handle_safe(self);
     MYSQL   *c = a->connection;
 
-    if (argc < 1 || argc > 3)
-        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1..3)", argc);
+    if (argc < 2 || argc > 3)
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 2..3)", argc);
 
-    fields = Qnil;
+    table = fields = io = Qnil;
     switch (argc) {
-        case 1: io    = argv[0]; break;
-        case 2: table = argv[0]; io = argv[1]; break;
-        case 3: table = argv[0]; fields = argv[1]; io = argv[2];
+        case 2:
+            table = argv[0];
+            io    = argv[1];
+            break;
+        case 3:
+            table  = argv[0];
+            fields = argv[1];
+            io     = argv[2];
+            if (TYPE(fields) != T_ARRAY)
+                rb_raise(eSwiftArgumentError, "fields needs to be an array");
+            if (RARRAY_LEN(fields) < 1)
+                fields = Qnil;
     }
-
-    if (NIL_P(io))
-        rb_raise(eSwiftArgumentError, "io object or a string is required");
-
-    if (!NIL_P(fields) && TYPE(fields) != T_ARRAY)
-        rb_raise(eSwiftArgumentError, "fields needs to be an array");
 
     if (argc > 1) {
         sql = (char *)malloc(4096);

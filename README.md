@@ -26,7 +26,7 @@ MRI adapter for MySQL
     #query(sql, *bind)
     #fileno
     #result
-    #write(table = nil, fields = nil, io_or_string)
+    #write(table, fields = nil, io_or_string)
 
   Swift::DB::MySql::Statement
     .new(Swift::DB::Mysql, sql)
