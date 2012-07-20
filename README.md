@@ -8,6 +8,7 @@ MRI adapter for MySQL
 * Result typecasting
 * Prepared statements, yeah finally!
 * Asynchronous support
+* Nested Transactions
 
 ## API
 
@@ -56,7 +57,8 @@ db.execute('drop table if exists users')
 db.execute('create table users (id int auto_increment primary key, name text, age integer, created_at datetime)')
 db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, Time.now.utc)
 
-p db.execute('select * from users').first #=> {:id => 1, :name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
+row = db.execute('select * from users').first
+p row #=> {:id => 1, :name => 'test', :age => 30, :created_at=> #<Swift::DateTime>}
 ```
 
 ### Asynchronous
