@@ -96,6 +96,21 @@ db.write('users', %w{name}, StringIO.new("foo\nbar\nbaz\n"))
 db.write('users', %w{name}, File.open("users.dat"))
 ```
 
+## Performance
+
+Don't read too much into it. Each library has its advantages and disadvantages.
+
+```
+# insert 1000 rows and read them back 100 times
+
+$ ruby check.rb
+                      user     system      total        real
+mysql2 insert     0.230000   0.040000   0.270000 (  0.520786)
+mysql2 select     1.190000   0.260000   1.450000 (  1.465079)
+swift insert      0.100000   0.060000   0.160000 (  0.496894)
+swift select      0.290000   0.000000   0.290000 (  0.294259)
+```
+
 ## License
 
 MIT
