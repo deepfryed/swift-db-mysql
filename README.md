@@ -42,22 +42,6 @@ MRI adapter for MySQL
     #insert_id
 ```
 
-### Asynchronous API
-
-```
-  Swift::DB::Mysql
-    #query(sql, *bind)
-    #fileno
-    #result
-```
-
-### Data I/O API
-
-```
-  Swift::DB::Mysql
-    #write(table = nil, fields = nil, io_or_string)
-```
-
 ## Example
 
 
