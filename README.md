@@ -45,16 +45,13 @@ MRI adapter for MySQL
 
 ## Example
 
-
-### Synchronous
-
 ```ruby
 require 'swift/db/mysql'
 
 db = Swift::DB::Mysql.new(db: 'swift_test')
 
 db.execute('drop table if exists users')
-db.execute('create table users (id int auto_increment primary key, name text, age integer, created_at datetime)')
+db.execute('create table users (id serial, name text, age integer, created_at datetime)')
 db.execute('insert into users(name, age, created_at) values(?, ?, ?)', 'test', 30, Time.now.utc)
 
 row = db.execute('select * from users').first
