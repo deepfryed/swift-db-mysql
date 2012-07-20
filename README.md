@@ -105,10 +105,14 @@ Don't read too much into it. Each library has its advantages and disadvantages.
 
 $ ruby check.rb
                       user     system      total        real
-mysql2 insert     0.230000   0.040000   0.270000 (  0.520786)
-mysql2 select     1.190000   0.260000   1.450000 (  1.465079)
-swift insert      0.100000   0.060000   0.160000 (  0.496894)
-swift select      0.290000   0.000000   0.290000 (  0.294259)
+do_mysql insert   0.170000   0.100000   0.270000 (  0.629025)
+do_mysql select   1.080000   0.130000   1.210000 (  1.227585)
+
+mysql2 insert     0.210000   0.040000   0.250000 (  0.704030)
+mysql2 select     0.940000   0.250000   1.190000 (  1.206372)
+
+swift insert      0.100000   0.060000   0.160000 (  0.483229)
+swift select      0.260000   0.010000   0.270000 (  0.282307)
 ```
 
 ## License

@@ -1,10 +1,16 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    addressable (2.2.8)
+    data_objects (0.10.8)
+      addressable (~> 2.1)
+    do_mysql (0.10.8)
+      data_objects (= 0.10.8)
     mysql2 (0.3.11)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  do_mysql
   mysql2

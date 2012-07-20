@@ -5,12 +5,14 @@ $:.unshift File.dirname(__FILE__) + '/../lib'
 
 require 'bundler/setup'
 require 'mysql2'
+require 'do_mysql'
 require 'swift-db-mysql'
 require 'benchmark'
 
 dbs = {
-  mysql2:  Mysql2::Client.new(database: 'swift_test'),
-  swift:   Swift::DB::Mysql.new(db: 'swift_test')
+  do_mysql: DataObjects::Connection.new("mysql://127.0.0.1/swift_test"),
+  mysql2:   Mysql2::Client.new(database: 'swift_test'),
+  swift:    Swift::DB::Mysql.new(db: 'swift_test'),
 }
 
 sql = {
@@ -31,6 +33,17 @@ class Mysql2::Client
   end
 end
 
+module DataObjects
+  class Connection
+    def query sql, *args
+      create_command(sql).execute_reader(*args)
+    end
+    def execute sql, *args
+      create_command(sql).execute_non_query(*args)
+    end
+  end
+end
+
 Benchmark.bm(15) do |bm|
   dbs.each do |name, db|
     db.execute(sql[:drop])
@@ -38,13 +51,20 @@ Benchmark.bm(15) do |bm|
 
     bm.report("#{name} insert") do
       rows.times do |n|
-        db.execute(sql[:insert], "name #{n}", Time.now.to_s)
+        db.execute(sql[:insert], "name #{n}", Time.now.strftime("%FT%T"))
       end
     end
 
     bm.report("#{name} select") do
-      iter.times do
-        db.execute(sql[:select], 0).entries
+      case db
+        when DataObjects::Mysql::Connection
+          iter.times do
+            db.query(sql[:select], 0).entries
+          end
+        else
+          iter.times do
+            db.execute(sql[:select], 0).entries
+          end
       end
     end
   end
