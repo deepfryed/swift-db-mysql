@@ -80,9 +80,14 @@ int db_mysql_adapter_infile_error(void *ptr, char *error, unsigned int size) {
     return 0;
 }
 
+char *ssl_option(VALUE ssl, char *key) {
+    VALUE option = rb_hash_aref(ssl, ID2SYM(rb_intern(key)));
+    return NIL_P(option) ? NULL : CSTRING(option);
+}
+
 VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     char MYSQL_BOOL_TRUE = 1;
-    VALUE db, user, pass, host, port;
+    VALUE db, user, pass, host, port, ssl;
     Adapter *a = db_mysql_adapter_handle(self);
 
     if (TYPE(options) != T_HASH)
@@ -93,6 +98,7 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     pass = rb_hash_aref(options, ID2SYM(rb_intern("pass")));
     host = rb_hash_aref(options, ID2SYM(rb_intern("host")));
     port = rb_hash_aref(options, ID2SYM(rb_intern("port")));
+    ssl  = rb_hash_aref(options, ID2SYM(rb_intern("ssl")));
 
     if (NIL_P(db))
         rb_raise(eSwiftConnectionError, "Invalid db name");
@@ -106,6 +112,20 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     a->connection = mysql_init(0);
     mysql_options(a->connection, MYSQL_OPT_RECONNECT, &MYSQL_BOOL_TRUE);
     mysql_options(a->connection, MYSQL_OPT_LOCAL_INFILE, 0);
+
+    if (!NIL_P(ssl)) {
+        if (TYPE(ssl) != T_HASH)
+            rb_raise(eSwiftArgumentError, "ssl options needs to be a hash");
+
+        mysql_ssl_set(
+            a->connection,
+            ssl_option(ssl, "key"),
+            ssl_option(ssl, "cert"),
+            ssl_option(ssl, "ca"),
+            ssl_option(ssl, "capath"),
+            ssl_option(ssl, "cipher")
+        );
+    }
 
     if (!mysql_real_connect(a->connection,
         CSTRING(host), CSTRING(user), CSTRING(pass), CSTRING(db), atoi(CSTRING(port)), 0, CLIENT_FOUND_ROWS))
