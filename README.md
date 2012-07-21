@@ -103,6 +103,10 @@ Don't read too much into it. Each library has its advantages and disadvantages.
 ```
 # insert 1000 rows and read them back 100 times
 
+$ ruby -v
+
+ruby 1.9.3p125 (2012-02-16 revision 34643) [x86_64-linux]
+
 $ ruby check.rb
                       user     system      total        real
 do_mysql insert   0.170000   0.100000   0.270000 (  0.629025)
