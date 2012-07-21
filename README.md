@@ -21,6 +21,7 @@ MRI adapter for MySQL
     #commit(savepoint = nil)
     #rollback(savepoint = nil)
     #transaction(savepoint = nil, &block)
+    #ping
     #close
     #closed?
     #escape(text)

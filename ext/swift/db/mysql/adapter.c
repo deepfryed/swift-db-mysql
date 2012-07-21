@@ -304,6 +304,11 @@ VALUE db_mysql_adapter_closed_q(VALUE self) {
     return a->connection ? Qfalse : Qtrue;
 }
 
+VALUE db_mysql_adapter_ping(VALUE self) {
+    Adapter *a = db_mysql_adapter_handle(self);
+    return a->connection && mysql_ping(a->connection) == 0 ? Qtrue : Qfalse;
+}
+
 VALUE db_mysql_adapter_prepare(VALUE self, VALUE sql) {
     return db_mysql_statement_initialize(db_mysql_statement_allocate(cDMS), self, sql);
 }
@@ -424,6 +429,7 @@ void init_swift_db_mysql_adapter() {
     rb_define_method(cDMA, "transaction", db_mysql_adapter_transaction, -1);
     rb_define_method(cDMA, "close",       db_mysql_adapter_close,        0);
     rb_define_method(cDMA, "closed?",     db_mysql_adapter_closed_q,     0);
+    rb_define_method(cDMA, "ping",        db_mysql_adapter_ping,         0);
     rb_define_method(cDMA, "escape",      db_mysql_adapter_escape,       1);
     rb_define_method(cDMA, "fileno",      db_mysql_adapter_fileno,       0);
     rb_define_method(cDMA, "query",       db_mysql_adapter_query,       -1);
