@@ -2,7 +2,7 @@
 
 require 'mkmf'
 
-$CFLAGS = '-std=c99'
+$CFLAGS = '-std=c99 -Os'
 
 inc_paths = %w(
   /usr/include

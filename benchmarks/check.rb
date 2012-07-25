@@ -19,8 +19,7 @@ sql = {
   drop:   'drop table if exists users',
   create: 'create table users(id integer auto_increment primary key, name text, created_at datetime)',
   insert: 'insert into users(name, created_at) values (?, ?)',
-  update: 'update users set name = ?, created_at = ? where id = ?',
-  select: 'select * from users where id > ?'
+  select: 'select * from users where id > ?',
 }
 
 rows = 1000
