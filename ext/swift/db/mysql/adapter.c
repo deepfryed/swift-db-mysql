@@ -95,7 +95,7 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
 
     db   = rb_hash_aref(options, ID2SYM(rb_intern("db")));
     user = rb_hash_aref(options, ID2SYM(rb_intern("user")));
-    pass = rb_hash_aref(options, ID2SYM(rb_intern("pass")));
+    pass = rb_hash_aref(options, ID2SYM(rb_intern("password")));
     host = rb_hash_aref(options, ID2SYM(rb_intern("host")));
     port = rb_hash_aref(options, ID2SYM(rb_intern("port")));
     ssl  = rb_hash_aref(options, ID2SYM(rb_intern("ssl")));
