@@ -89,6 +89,7 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         mysql_bind = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
         memset(mysql_bind, 0, sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
 
+        rb_gc_register_address(&bind);
         for (n = 0; n < RARRAY_LEN(bind); n++) {
             data = rb_ary_entry(bind, n);
             if (NIL_P(data)) {
@@ -105,12 +106,14 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         }
 
         if (mysql_stmt_bind_param(s->statement, mysql_bind) != 0) {
+            rb_gc_unregister_address(&bind);
             free(mysql_bind);
             rb_raise(eSwiftRuntimeError, mysql_stmt_error(s->statement));
         }
 
         error = (int)rb_thread_blocking_region(nogvl_mysql_statement_execute, s->statement, RUBY_UBF_IO, 0);
         free(mysql_bind);
+        rb_gc_unregister_address(&bind);
     }
     else {
         if ((n = mysql_stmt_param_count(s->statement)) > 0)

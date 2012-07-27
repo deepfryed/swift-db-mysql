@@ -159,8 +159,10 @@ VALUE db_mysql_adapter_execute(int argc, VALUE *argv, VALUE self) {
     rb_scan_args(argc, argv, "10*", &sql, &bind);
     sql = TO_S(sql);
 
+    rb_gc_register_address(&bind);
     if (RARRAY_LEN(bind) > 0)
         sql = db_mysql_bind_sql(self, sql, bind);
+    rb_gc_unregister_address(&bind);
 
     Query q = {.connection = c, .sql = sql};
 
