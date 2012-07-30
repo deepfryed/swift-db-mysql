@@ -30,8 +30,8 @@ Adapter* db_mysql_adapter_handle_safe(VALUE self) {
 }
 
 void db_mysql_adapter_mark(Adapter *a) {
-    if (a)
-        rb_gc_mark_maybe(a->io);
+    if (a && a->io)
+        rb_gc_mark(a->io);
 }
 
 VALUE db_mysql_adapter_deallocate(Adapter *a) {
@@ -43,26 +43,27 @@ VALUE db_mysql_adapter_deallocate(Adapter *a) {
 
 VALUE db_mysql_adapter_allocate(VALUE klass) {
     Adapter *a = (Adapter*)malloc(sizeof(Adapter));
-
-    a->connection = 0;
-    a->t_nesting  = 0;
-    a->io         = Qnil;
+    memset(a, 0, sizeof(Adapter));
     return Data_Wrap_Struct(klass, db_mysql_adapter_mark, db_mysql_adapter_deallocate, a);
 }
 
 int db_mysql_adapter_infile_init(void **ptr, const char *filename, void *self) {
     Adapter *a = db_mysql_adapter_handle_safe((VALUE)self);
     *ptr = (void *)self;
-    return NIL_P(a->io) ? -1 : 0;
+    return a->io ? 0 : -1;
 }
 
 int db_mysql_adapter_infile_read(void *ptr, char *buffer, unsigned int size) {
     VALUE data;
     Adapter *a = db_mysql_adapter_handle_safe((VALUE)ptr);
 
+    if (!a->io)
+        return 0;
+
     data = rb_funcall(a->io, rb_intern("read"), 1, INT2NUM(size));
 
-    if (NIL_P(data)) return 0;
+    if (NIL_P(data))
+        return 0;
 
     memcpy(buffer, RSTRING_PTR(data), RSTRING_LEN(data));
     return RSTRING_LEN(data);
@@ -70,12 +71,12 @@ int db_mysql_adapter_infile_read(void *ptr, char *buffer, unsigned int size) {
 
 void db_mysql_adapter_infile_end(void *ptr) {
     Adapter *a = db_mysql_adapter_handle_safe((VALUE)ptr);
-    a->io = Qnil;
+    a->io = 0;
 }
 
 int db_mysql_adapter_infile_error(void *ptr, char *error, unsigned int size) {
     Adapter *a = db_mysql_adapter_handle_safe((VALUE)ptr);
-    a->io = Qnil;
+    a->io = 0;
     snprintf(error, size, "error loading data using LOAD INFILE");
     return 0;
 }
@@ -402,10 +403,9 @@ VALUE db_mysql_adapter_write(int argc, VALUE *argv, VALUE self) {
                 CSTRING(table), CSTRING(rb_ary_join(fields, rb_str_new2(", "))));
 
         a->io = rb_respond_to(io, rb_intern("read")) ? io : rb_funcall(cStringIO, rb_intern("new"), 1, TO_S(io));
-        rb_gc_mark(a->io);
         if (mysql_real_query(a->connection, sql, strlen(sql)) != 0) {
             free(sql);
-            a->io = Qnil;
+            a->io = 0;
             rb_raise(eSwiftRuntimeError, "%s", mysql_error(a->connection));
         }
 

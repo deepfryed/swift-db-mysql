@@ -19,7 +19,6 @@ typedef struct Result {
 
     VALUE fields;
     VALUE types;
-    VALUE rows;
     VALUE statement;
 
     size_t cols;
@@ -43,14 +42,12 @@ Result* db_mysql_result_handle(VALUE self) {
 
 void db_mysql_result_mark(Result *r) {
     if (r) {
-        if (!NIL_P(r->fields))
-            rb_gc_mark_maybe(r->fields);
-        if (!NIL_P(r->types))
-            rb_gc_mark_maybe(r->types);
-        if (!NIL_P(r->rows))
-            rb_gc_mark_maybe(r->rows);
-        if (!NIL_P(r->rows))
-            rb_gc_mark_maybe(r->statement);
+        if (r->fields)
+            rb_gc_mark(r->fields);
+        if (r->types)
+            rb_gc_mark(r->types);
+        if (r->statement)
+            rb_gc_mark(r->statement);
     }
 }
 
@@ -86,7 +83,6 @@ VALUE db_mysql_result_load(VALUE self, MYSQL_RES *result, size_t insert_id, size
     Result *r    = db_mysql_result_handle(self);
     r->fields    = rb_ary_new();
     r->types     = rb_ary_new();
-    r->rows      = rb_ary_new();
     r->r         = result;
     r->affected  = affected;
     r->insert_id = insert_id;

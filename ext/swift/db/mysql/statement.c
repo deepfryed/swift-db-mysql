@@ -33,7 +33,7 @@ Statement* db_mysql_statement_handle_safe(VALUE self) {
 
 void db_mysql_statement_mark(Statement *s) {
     if (s && s->adapter)
-        rb_gc_mark_maybe(s->adapter);
+        rb_gc_mark(s->adapter);
 }
 
 VALUE db_mysql_statement_deallocate(Statement *s) {
@@ -54,9 +54,7 @@ VALUE db_mysql_statement_initialize(VALUE self, VALUE adapter, VALUE sql) {
     MYSQL *connection;
     Statement *s = db_mysql_statement_handle(self);
 
-    s->adapter = adapter;
-    rb_gc_mark(s->adapter);
-
+    s->adapter   = adapter;
     connection   = db_mysql_adapter_handle_safe(adapter)->connection;
     s->statement = mysql_stmt_init(connection);
     sql          = TO_S(sql);
