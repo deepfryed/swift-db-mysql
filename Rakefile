@@ -8,7 +8,7 @@ $rootdir = Pathname.new(__FILE__).dirname
 $gemspec = Gem::Specification.new do |s|
   s.name              = 'swift-db-mysql'
   s.version           = '0.2.0'
-  s.date              = Date.today    
+  s.date              = Date.today
   s.authors           = ['Bharanee Rathna']
   s.email             = ['deepfryed@gmail.com']
   s.summary           = 'Swift mysql adapter'
@@ -22,7 +22,7 @@ $gemspec = Gem::Specification.new do |s|
 end
 
 desc 'Generate gemspec'
-task :gemspec do 
+task :gemspec do
   $gemspec.date = Date.today
   File.open('%s.gemspec' % $gemspec.name, 'w') {|fh| fh.write($gemspec.to_ruby)}
 end
