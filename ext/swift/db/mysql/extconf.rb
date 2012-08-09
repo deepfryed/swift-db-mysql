@@ -21,15 +21,25 @@ lib_paths = %w(
   /opt/local/lib
   /opt/local/lib/mysql5/mysql
   /sw/lib
+  /usr/lib64/mysql
+  /usr/lib32/mysql
 )
 
-(inc_paths << ENV['SMY_INCLUDE_DIRS']).compact!
-(lib_paths << ENV['SMY_LIBRARY_DIRS']).compact!
+if %r{x86_64}i.match(RUBY_PLATFORM)
+  lib_paths << '/usr/lib64'
+  lib_paths << '/usr/lib64/mysql'
+else
+  lib_paths << '/usr/lib32'
+  lib_paths << '/usr/lib32/mysql'
+end
 
-find_header('mysql.h',     *inc_paths) or raise 'unable to locate mysql headers set SMY_INCLUDE_DIRS'
-find_header('uuid/uuid.h', *inc_paths) or raise 'unable to locate uuid headers set SMY_INCLUDE_DIRS'
+uuid_inc,  uuid_lib  = dir_config('uuid',  '/usr/include/uuid', '/usr/lib')
+mysql_inc, mysql_lib = dir_config('mysql')
 
-find_library('mysqlclient',  'main', *lib_paths) or raise 'unable to locate mysql lib set SMY_LIBRARY_DIRS'
-find_library('uuid',         'main', *lib_paths) or raise 'unable to locate uuid lib set SMY_LIBRARY_DIRS'
+find_header 'uuid.h',  *inc_paths.dup.unshift(uuid_inc).compact
+find_header 'mysql.h', *inc_paths.dup.unshift(mysql_inc).compact
+
+find_library 'uuid',        'main', *lib_paths.dup.unshift(uuid_lib).compact
+find_library 'mysqlclient', 'main', *lib_paths.dup.unshift(mysql_lib).compact
 
 create_makefile('swift_db_mysql_ext')
