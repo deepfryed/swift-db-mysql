@@ -25,14 +25,6 @@ lib_paths = %w(
   /usr/lib32/mysql
 )
 
-if %r{x86_64}i.match(RUBY_PLATFORM)
-  lib_paths << '/usr/lib64'
-  lib_paths << '/usr/lib64/mysql'
-else
-  lib_paths << '/usr/lib32'
-  lib_paths << '/usr/lib32/mysql'
-end
-
 uuid_inc,  uuid_lib  = dir_config('uuid',  '/usr/include/uuid', '/usr/lib')
 mysql_inc, mysql_lib = dir_config('mysql')
 
