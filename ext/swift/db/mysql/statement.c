@@ -110,8 +110,8 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         }
 
         error = (int)rb_thread_blocking_region(nogvl_mysql_statement_execute, s->statement, RUBY_UBF_IO, 0);
-        free(mysql_bind);
         rb_gc_unregister_address(&bind);
+        free(mysql_bind);
     }
     else {
         if ((n = mysql_stmt_param_count(s->statement)) > 0)

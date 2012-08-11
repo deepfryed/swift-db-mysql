@@ -338,8 +338,10 @@ VALUE db_mysql_adapter_query(int argc, VALUE *argv, VALUE self) {
     rb_scan_args(argc, argv, "10*", &sql, &bind);
     sql = TO_S(sql);
 
+    rb_gc_register_address(&bind);
     if (RARRAY_LEN(bind) > 0)
         sql = db_mysql_bind_sql(self, sql, bind);
+    rb_gc_unregister_address(&bind);
 
     mysql_send_query(c, RSTRING_PTR(sql), RSTRING_LEN(sql));
 
