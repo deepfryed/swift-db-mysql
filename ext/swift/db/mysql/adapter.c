@@ -60,7 +60,7 @@ int db_mysql_adapter_infile_read(void *ptr, char *buffer, unsigned int size) {
     if (!a->io)
         return 0;
 
-    data = rb_funcall(a->io, rb_intern("read"), 1, INT2NUM(size));
+    data = rb_funcall(a->io, rb_intern("read"), 1, UINT2NUM(size));
 
     if (NIL_P(data))
         return 0;
