@@ -5,6 +5,7 @@
 #pragma once
 
 #include "common.h"
+#include "gvl.h"
 
 typedef struct Statement {
     MYSQL_STMT *statement;

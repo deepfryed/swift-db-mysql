@@ -141,14 +141,10 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     return self;
 }
 
-typedef struct Query {
-    MYSQL *connection;
-    VALUE sql;
-} Query;
-
-VALUE nogvl_mysql_adapter_execute(void *ptr) {
-    Query *q = (Query *)ptr;
-    return (VALUE)mysql_real_query(q->connection, RSTRING_PTR(q->sql), RSTRING_LEN(q->sql));
+GVL_NOLOCK_RETURN_TYPE nogvl_mysql_adapter_execute(void *ptr) {
+    Command *c = (Command *)ptr;
+    c->status = mysql_real_query(c->connection, RSTRING_PTR(c->sql), RSTRING_LEN(c->sql));
+    return (GVL_NOLOCK_RETURN_TYPE)c;
 }
 
 VALUE db_mysql_adapter_execute(int argc, VALUE *argv, VALUE self) {
@@ -165,9 +161,10 @@ VALUE db_mysql_adapter_execute(int argc, VALUE *argv, VALUE self) {
         sql = db_mysql_bind_sql(self, sql, bind);
     rb_gc_unregister_address(&bind);
 
-    Query q = {.connection = c, .sql = sql};
+    Command command = {.connection = c, .sql = sql, .status = 0};
+    GVL_NOLOCK(nogvl_mysql_adapter_execute, &command, RUBY_UBF_IO, 0);
 
-    if ((int)rb_thread_blocking_region(nogvl_mysql_adapter_execute, &q, RUBY_UBF_IO, 0) != 0)
+    if (command.status != 0)
         rb_raise(eSwiftRuntimeError, "%s", mysql_error(c));
 
     result = mysql_store_result(c);

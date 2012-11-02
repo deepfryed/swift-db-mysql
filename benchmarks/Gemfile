@@ -1,3 +1,4 @@
 source :rubygems
-gem 'mysql2'
+
+gem 'mysql2', git: 'git://github.com/brianmario/mysql2.git'
 gem 'do_mysql'

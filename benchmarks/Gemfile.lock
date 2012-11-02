@@ -1,3 +1,9 @@
+GIT
+  remote: git://github.com/brianmario/mysql2.git
+  revision: 3f49e3982fb34d76aa53d4a6149ac10d69f20c26
+  specs:
+    mysql2 (0.3.12b4)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -6,11 +12,10 @@ GEM
       addressable (~> 2.1)
     do_mysql (0.10.8)
       data_objects (= 0.10.8)
-    mysql2 (0.3.11)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   do_mysql
-  mysql2
+  mysql2!

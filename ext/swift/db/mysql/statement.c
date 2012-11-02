@@ -65,21 +65,26 @@ VALUE db_mysql_statement_initialize(VALUE self, VALUE adapter, VALUE sql) {
     return self;
 }
 
-VALUE nogvl_mysql_statement_execute(void *ptr) {
-    return (VALUE)mysql_stmt_execute((MYSQL_STMT *)ptr);
+
+GVL_NOLOCK_RETURN_TYPE nogvl_mysql_statement_execute(void *ptr) {
+    Command *c = (Command *)ptr;
+    c->status  = mysql_stmt_execute(c->statement);
+    return (GVL_NOLOCK_RETURN_TYPE)c;
 }
 
 VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
-    int n, error;
+    int n;
     VALUE bind, data, result;
     MYSQL_BIND *mysql_bind;
     char MYSQL_BOOL_TRUE = 1, MYSQL_BOOL_FALSE = 0;
 
     Statement *s = db_mysql_statement_handle_safe(self);
+    Command command = {.statement = s->statement, .status = 0};
 
     rb_scan_args(argc, argv, "00*", &bind);
 
     mysql_stmt_free_result(s->statement);
+
     if (RARRAY_LEN(bind) > 0) {
         n = mysql_stmt_param_count(s->statement);
         if (RARRAY_LEN(bind) != n)
@@ -109,17 +114,17 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
             rb_raise(eSwiftRuntimeError, mysql_stmt_error(s->statement));
         }
 
-        error = (int)rb_thread_blocking_region(nogvl_mysql_statement_execute, s->statement, RUBY_UBF_IO, 0);
+        GVL_NOLOCK(nogvl_mysql_statement_execute, &command, RUBY_UBF_IO, 0);
         rb_gc_unregister_address(&bind);
         free(mysql_bind);
     }
     else {
         if ((n = mysql_stmt_param_count(s->statement)) > 0)
             rb_raise(eSwiftArgumentError, "expected %d bind arguments got 0 instead", n);
-        error = (int)rb_thread_blocking_region(nogvl_mysql_statement_execute, s->statement, RUBY_UBF_IO, 0);
+        GVL_NOLOCK(nogvl_mysql_statement_execute, &command, RUBY_UBF_IO, 0);
     }
 
-    if (error)
+    if (command.status != 0)
         rb_raise(eSwiftRuntimeError, mysql_stmt_error(s->statement));
 
     result = db_mysql_result_allocate(cDMR);
