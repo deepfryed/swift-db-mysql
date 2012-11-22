@@ -74,7 +74,7 @@ GVL_NOLOCK_RETURN_TYPE nogvl_mysql_statement_execute(void *ptr) {
 
 VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
     int n;
-    VALUE bind, data, result;
+    VALUE bind, data, result, typecast_bind;
     MYSQL_BIND *mysql_bind;
     char MYSQL_BOOL_TRUE = 1, MYSQL_BOOL_FALSE = 0;
 
@@ -92,7 +92,8 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         mysql_bind = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
         memset(mysql_bind, 0, sizeof(MYSQL_BIND) * RARRAY_LEN(bind));
 
-        rb_gc_disable();
+        typecast_bind = rb_ary_new();
+        rb_gc_register_address(&typecast_bind);
         rb_gc_register_address(&bind);
         for (n = 0; n < RARRAY_LEN(bind); n++) {
             data = rb_ary_entry(bind, n);
@@ -102,6 +103,7 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
             }
             else {
                 data = typecast_to_string(data);
+                rb_ary_push(typecast_bind, data);
                 mysql_bind[n].is_null       = &MYSQL_BOOL_FALSE;
                 mysql_bind[n].buffer_type   = MYSQL_TYPE_STRING;
                 mysql_bind[n].buffer        = RSTRING_PTR(data);
@@ -110,15 +112,15 @@ VALUE db_mysql_statement_execute(int argc, VALUE *argv, VALUE self) {
         }
 
         if (mysql_stmt_bind_param(s->statement, mysql_bind) != 0) {
+            rb_gc_unregister_address(&typecast_bind);
             rb_gc_unregister_address(&bind);
-            rb_gc_enable();
             free(mysql_bind);
             rb_raise(eSwiftRuntimeError, mysql_stmt_error(s->statement));
         }
 
         GVL_NOLOCK(nogvl_mysql_statement_execute, &command, RUBY_UBF_IO, 0);
+        rb_gc_unregister_address(&typecast_bind);
         rb_gc_unregister_address(&bind);
-        rb_gc_enable();
         free(mysql_bind);
     }
     else {

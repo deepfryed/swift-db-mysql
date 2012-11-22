@@ -1,7 +1,7 @@
-== 0.2.2 (2012-11-14)
+== 0.2.2 (2012-11-23)
 
 * 2.x build fixes
-* pause GC around Statement#execute to avoid GC of typecast bind data.
+* keep bind params in Statement#execute in a gc safe array.
 
 == 0.2.1 (2012-08-09)
 

@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Bharanee Rathna"]
-  s.date = "2012-11-14"
+  s.date = "2012-11-23"
   s.description = "Swift adapter for MySQL database"
   s.email = ["deepfryed@gmail.com"]
   s.extensions = ["ext/swift/db/mysql/extconf.rb"]
