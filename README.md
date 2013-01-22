@@ -10,6 +10,12 @@ MRI adapter for MySQL
 * Asynchronous support
 * Nested Transactions
 
+## Requirements
+
+* mysql client deveopment libraries
+* uuid development libraries
+* GCC 4.6 or later
+
 ## API
 
 ```
