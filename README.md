@@ -14,7 +14,6 @@ MRI adapter for MySQL
 
 * mysql client deveopment libraries
 * uuid development libraries
-* GCC 4.6 or later
 
 ## API
 

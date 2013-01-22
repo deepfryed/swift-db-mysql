@@ -27,12 +27,8 @@ DLL_PRIVATE VALUE rb_uuid_string();
 DLL_PRIVATE VALUE db_mysql_bind_sql(VALUE, VALUE, VALUE);
 
 typedef struct Command {
-    union {
-        struct {
-            MYSQL *connection;
-            VALUE sql;
-        };
-        MYSQL_STMT *statement;
-    };
     int status;
+    VALUE sql;
+    MYSQL *connection;
+    MYSQL_STMT *statement;
 } Command;
