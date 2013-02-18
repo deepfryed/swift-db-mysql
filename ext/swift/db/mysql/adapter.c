@@ -88,7 +88,7 @@ char *ssl_option(VALUE ssl, char *key) {
 
 VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     char MYSQL_BOOL_TRUE = 1;
-    VALUE db, user, pass, host, port, ssl;
+    VALUE db, user, pass, host, port, ssl, enc;
     Adapter *a = db_mysql_adapter_handle(self);
 
     if (TYPE(options) != T_HASH)
@@ -100,6 +100,7 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
     host = rb_hash_aref(options, ID2SYM(rb_intern("host")));
     port = rb_hash_aref(options, ID2SYM(rb_intern("port")));
     ssl  = rb_hash_aref(options, ID2SYM(rb_intern("ssl")));
+    enc  = rb_hash_aref(options, ID2SYM(rb_intern("encoding")));
 
     if (NIL_P(db))
         rb_raise(eSwiftConnectionError, "Invalid db name");
@@ -109,6 +110,8 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
         port = rb_str_new2("3306");
     if (NIL_P(user))
         user = sUser;
+    if (NIL_P(enc))
+        enc = rb_str_new2("utf8");
 
     a->connection = mysql_init(0);
     mysql_options(a->connection, MYSQL_OPT_RECONNECT, &MYSQL_BOOL_TRUE);
@@ -132,7 +135,9 @@ VALUE db_mysql_adapter_initialize(VALUE self, VALUE options) {
         CSTRING(host), CSTRING(user), CSTRING(pass), CSTRING(db), atoi(CSTRING(port)), 0, CLIENT_FOUND_ROWS))
         rb_raise(eSwiftConnectionError, "%s", mysql_error(a->connection));
 
-    mysql_set_character_set(a->connection, "utf8");
+    if (mysql_set_character_set(a->connection, CSTRING(enc)) != 0)
+        rb_raise(eSwiftConnectionError, "%s", mysql_error(a->connection));
+
     mysql_set_local_infile_handler(
         a->connection,
         db_mysql_adapter_infile_init, db_mysql_adapter_infile_read, db_mysql_adapter_infile_end, db_mysql_adapter_infile_error,

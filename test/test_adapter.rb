@@ -5,6 +5,14 @@ describe 'mysql adapter' do
     assert db
   end
 
+  it 'it should allow custom encoding' do
+    assert Swift::DB::Mysql.new(db: 'swift_test', encoding: 'utf8mb4')
+  end
+
+  it 'should raise connection error on not so awesome encoding' do
+    assert_raises(Swift::ConnectionError) {Swift::DB::Mysql.new(db: 'swift_test', encoding: 'not_awesome')}
+  end
+
   it 'should execute sql' do
     assert db.execute("select * from information_schema.tables limit 1")
   end
