@@ -49,6 +49,27 @@ MRI adapter for MySQL
     #insert_id
 ```
 
+## Connection options
+
+```
+╭────────────────────╥────────────┬─────────────╮
+│ Name               ║  Default   │  Optional   │
+╞════════════════════╬════════════╪═════════════╡
+│ db                 ║  -         │  No         │
+│ host               ║  127.0.0.1 │  Yes        │
+│ port               ║  3306      │  Yes        │
+│ user               ║  Etc.login │  Yes        │
+│ password           ║  nil       │  Yes        │
+│ encoding           ║  utf8      │  Yes        │
+│ ssl                ║            │  Yes        │
+│ ssl[:key]          ║  -         │  No         │
+│ ssl[:cert]         ║  nil       │  Yes        │
+│ ssl[:ca]           ║  nil       │  Yes        │
+│ ssl[:capath]       ║  nil       │  Yes        │
+│ ssl[:cipher]       ║  nil       │  Yes        │
+└────────────────────╨────────────┴─────────────┘
+```
+
 ## Example
 
 ```ruby
