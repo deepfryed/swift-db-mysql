@@ -34,4 +34,5 @@ find_header 'mysql.h', *inc_paths.dup.unshift(mysql_inc).compact
 find_library 'uuid',        'main', *lib_paths.dup.unshift(uuid_lib).compact
 find_library 'mysqlclient', 'main', *lib_paths.dup.unshift(mysql_lib).compact
 
+have_const(%w(UUID_VARIANT_NCS), 'uuid.h')
 create_makefile('swift_db_mysql_ext')

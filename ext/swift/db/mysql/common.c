@@ -4,7 +4,17 @@
 
 #include "common.h"
 #include "typecast.h"
-#include <uuid/uuid.h>
+
+#ifdef HAVE_CONST_UUID_VARIANT_NCS
+    #include <uuid/uuid.h>
+#else
+    // TODO: no guarantee of being unique.
+    typedef unsigned char uuid_t[16];
+    void uuid_generate(uuid_t uuid) {
+        for (int i = 0; i < sizeof(uuid); i++)
+            uuid[i] = rand() % 256;
+    }
+#endif
 
 VALUE db_mysql_adapter_escape(VALUE, VALUE);
 
