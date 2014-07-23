@@ -5,7 +5,7 @@ GIT
     mysql2 (0.3.12b4)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     addressable (2.2.8)
     data_objects (0.10.8)
