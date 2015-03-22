@@ -12,8 +12,8 @@ MRI adapter for MySQL
 
 ## Requirements
 
-* mysql client deveopment libraries
-* uuid development libraries
+* mysql client deveopment libraries (libmysqlclient-dev)
+* uuid development libraries (uuid-dev)
 
 ## Building
 

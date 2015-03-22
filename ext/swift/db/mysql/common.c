@@ -24,11 +24,12 @@ VALUE rb_uuid_string() {
     char uuid_hex[sizeof(uuid_t) * 2 + 1];
 
     uuid_generate(uuid);
-    for (n = 0; n < sizeof(uuid_t); n++)
-        sprintf(uuid_hex + n * 2 + 1, "%02x", uuid[n]);
 
-    uuid_hex[0] = 'u';
-    return rb_str_new(uuid_hex, sizeof(uuid_t) * 2 + 1);
+    memset(uuid_hex, 0, sizeof(uuid_hex));
+    for (n = 0; n < sizeof(uuid_t); n++)
+        sprintf(uuid_hex + n * 2, "%02x", uuid[n]);
+
+    return rb_str_new(uuid_hex, sizeof(uuid_t) * 2);
 }
 
 size_t db_mysql_buffer_adjust(char **buffer, size_t size, size_t offset, size_t need) {
