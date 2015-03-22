@@ -1,0 +1,3 @@
+[submodule "vendor/swift-db-datetime"]
+	path = vendor/swift-db-datetime
+	url = https://github.com/deepfryed/swift-db-datetime.git
