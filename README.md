@@ -15,6 +15,13 @@ MRI adapter for MySQL
 * mysql client deveopment libraries
 * uuid development libraries
 
+## Building
+
+```
+git submodule update --init
+rake
+```
+
 ## API
 
 ```
