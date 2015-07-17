@@ -9,6 +9,7 @@ inc_paths = %w(
   /usr/include/mysql
   /usr/local/include
   /usr/local/include/mysql
+  /usr/local/mysql/include
   /opt/local/include
   /opt/local/include/mysql
   /opt/local/include/mysql5
