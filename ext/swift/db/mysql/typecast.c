@@ -99,7 +99,7 @@ void init_swift_db_mysql_typecast() {
     fnew        = rb_intern("new");
     fto_date    = rb_intern("to_date");
     fstrftime   = rb_intern("strftime");
-    dtformat    = rb_str_new2("%F %T.%N %z");
+    dtformat    = rb_str_new2("%F %T.%N");
 
     rb_global_variable(&dtformat);
 }

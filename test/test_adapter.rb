@@ -37,8 +37,8 @@ describe 'mysql adapter' do
     row = result.first
     assert_equal 1,      row[:id]
     assert_equal 'test', row[:name]
-    assert_equal nil,    row[:age]
-    assert_equal now.to_i, row[:created_at].to_time.to_i
+    assert_nil   row[:age]
+    assert_equal now.to_f.round(0), row[:created_at].to_time.to_i
 
     result = db.execute('delete from users where id = 0')
     assert_equal 0, result.selected_rows
@@ -67,6 +67,7 @@ describe 'mysql adapter' do
     assert db.execute("insert into users (name, created_at) values (?, ?)", "test", Time.now)
     assert s = db.prepare("select * from users where id > ? and created_at <= ?")
 
+    sleep 0.5
     assert_equal 0, s.execute(1, Time.now).selected_rows
     assert_equal 1, s.execute(0, Time.now).selected_rows
 
