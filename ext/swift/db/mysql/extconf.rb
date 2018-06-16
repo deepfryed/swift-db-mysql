@@ -26,6 +26,16 @@ lib_paths = %w(
   /usr/lib32/mysql
 )
 
+if File.exists?(%x{which mysql_config}.strip)
+  %x{mysql_config --include}.strip.gsub(/-I/, '').split(/\s+/).each do |dir|
+    inc_paths.unshift dir
+  end
+
+  %x{mysql_config --libs}.strip.scan(/-L([^ ]+)/).flatten.each do |dir|
+    lib_paths.unshift dir
+  end
+end
+
 uuid_inc,  uuid_lib  = dir_config('uuid',  '/usr/include/uuid', '/usr/lib')
 mysql_inc, mysql_lib = dir_config('mysql')
 
