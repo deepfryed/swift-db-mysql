@@ -158,3 +158,5 @@ swift select      0.260000   0.010000   0.270000 (  0.282307)
 ## License
 
 MIT
+
+https://spdx.org/licenses/MIT.html

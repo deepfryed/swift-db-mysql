@@ -17,8 +17,9 @@ $gemspec = Gem::Specification.new do |s|
   s.files             = Dir['ext/**/*.{c,h}'] + Dir['{ext,test,lib}/**/*.rb'] + %w(README.md CHANGELOG)
   s.extensions        = %w(ext/swift/db/mysql/extconf.rb)
   s.require_paths     = %w(lib ext)
+  s.licenses          = %w(MIT)
 
-  s.add_development_dependency('rake')
+  s.add_development_dependency('rake', '~> 0')
 end
 
 desc 'Generate gemspec'
