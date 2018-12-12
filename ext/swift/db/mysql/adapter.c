@@ -195,7 +195,7 @@ VALUE db_mysql_adapter_begin(int argc, VALUE *argv, VALUE self) {
     if (NIL_P(savepoint))
         savepoint = rb_uuid_string();
 
-    snprintf(command, 256, "savepoint %s", CSTRING(savepoint));
+    snprintf(command, 256, "savepoint sp%s", CSTRING(savepoint));
     if (mysql_real_query(a->connection, command, strlen(command)) != 0)
         rb_raise(eSwiftRuntimeError, "%s", mysql_error(a->connection));
 

@@ -7,7 +7,7 @@ require 'rake/testtask'
 $rootdir = Pathname.new(__FILE__).dirname
 $gemspec = Gem::Specification.new do |s|
   s.name              = 'swift-db-mysql'
-  s.version           = '0.3.3'
+  s.version           = '0.3.4'
   s.date              = Date.today
   s.authors           = ['Bharanee Rathna']
   s.email             = ['deepfryed@gmail.com']
