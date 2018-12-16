@@ -220,7 +220,7 @@ VALUE db_mysql_adapter_commit(int argc, VALUE *argv, VALUE self) {
         a->t_nesting--;
     }
     else {
-        snprintf(command, 256, "release savepoint %s", CSTRING(savepoint));
+        snprintf(command, 256, "release savepoint sp%s", CSTRING(savepoint));
         if (mysql_real_query(a->connection, command, strlen(command)) != 0)
             rb_raise(eSwiftRuntimeError, "%s", mysql_error(a->connection));
         a->t_nesting--;
@@ -245,7 +245,7 @@ VALUE db_mysql_adapter_rollback(int argc, VALUE *argv, VALUE self) {
         a->t_nesting--;
     }
     else {
-        snprintf(command, 256, "rollback to savepoint %s", CSTRING(savepoint));
+        snprintf(command, 256, "rollback to savepoint sp%s", CSTRING(savepoint));
         if (mysql_real_query(a->connection, command, strlen(command)) != 0)
             rb_raise(eSwiftRuntimeError, "%s", mysql_error(a->connection));
         a->t_nesting--;
